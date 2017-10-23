@@ -5,6 +5,8 @@ Created on 2017年10月23日
 @author: Administrator
 '''
 import numpy as np
+import matplotlib.pyplot as plt
+import random
 
 def getData(filename):
     with open(filename, 'r') as f:
@@ -29,31 +31,37 @@ def sign(num):
         return -1
     else:
         return 1
-
-def PLAnaive(X, Y, w0):
+    
+def PLArandom(X, Y, w0, eta):
     num = len(X)
     w = w0
     step = 0
+    rand_sord = random.sample(range(num), num)
     while True:
         err_count = 0
         for i in range(num):
-#             print np.dot(X[i], w)[0]
-            sign_value = sign(np.dot(X[i], w)[0])
-            if sign_value != Y[i, 0]:
-                w = w + Y[i, 0] * np.matrix(X[i]).T
+            sign_value = sign(np.dot(X[rand_sord[i]], w)[0])
+            if sign_value != Y[rand_sord[i], 0]:
+                w = w + eta * Y[rand_sord[i], 0] * np.matrix(X[rand_sord[i]]).T
                 err_count += 1
                 step += 1
-#                 if (sign_value == -1) and (Y[i, 0] == -1):
-#                 print sign_value, Y[i, 0]
-        print 'the step: ', step, 'err_count: ', err_count
+#         print 'the step: ', step, 'err_count: ', err_count
         if err_count == 0:
             break
-    return w
-    
+    return step
 
+    
 if __name__ == '__main__':
     filename = 'hw1_15_train.dat'
     X, Y = getData(filename)
-    w0 = np.zeros((5, 1))
-    w_opt = PLAnaive(X, Y, w0)
-    print w_opt
+    steps = []
+    for i in range(2000):
+        w0 = np.zeros((5, 1))
+        eta = 0.5
+        step = PLArandom(X, Y, w0, eta)
+        steps.append(step)
+#         print 'iteration: ', i, 'step: ', step
+    step_avg = sum(steps)*1.0/len(steps)
+    print step_avg
+    plt.hist(steps)
+    plt.show()
